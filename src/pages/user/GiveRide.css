@@ -1,0 +1,13 @@
+#inputRideContainer{
+    display:flex;
+    justify-content: space-around;
+    margin: none;
+}
+
+#info{
+    text-align: left;
+}
+
+input{
+    max-width: 100px;
+}

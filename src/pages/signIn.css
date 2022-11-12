@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Allan:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
+
+ion-toolbar{
+    --background:#232D4B;
+    color: white;
+    text-align: center;
+    display:flex;
+    align-items: center;
+}
+#header{
+    height: 85px;
+}
+
+img{
+    margin-top: auto;
+    margin-bottom:auto;
+
+}
+
+#container{
+    text-align: center;
+    margin-top: 75px;
+}
+
+#icon{
+    font-family: 'Allan', cursive;
+    font-size: 150px !important;
+    margin:0;
+    padding:0;
+    line-height: 50px;
+}
+
+#appName{
+    font-family: 'Lato', sans-serif;
+    font-size: 30px !important;
+    margin-bottom: 100px;
+}
+
+#description{
+    font-family: 'Lato', sans-serif;
+    font-size: 19px !important;
+    margin-bottom: 20px;
+}
+
+h3{
+    font-size: 18px !important;
+}
+
+ion-button{
+    font-size: larger;
+}
+

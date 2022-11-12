@@ -1,0 +1,7 @@
+{
+  "name": "hoos-driving",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

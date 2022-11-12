@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Allan:wght@700&display=swap');
+
+ion-tab-bar, ion-tab-button{
+    background-color:#232D4B;
+    color: #E57200;
+    font-family: 'Lato', sans-serif;
+    height:70px;
+}
+
+#title{
+    font-family: 'Allan', cursive;
+    font-size: 60px !important;
+}
+
+#tabLabel{
+    font-size:19px !important;
+}
