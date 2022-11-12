@@ -26,11 +26,18 @@ import "@ionic/react/css/display.css";
 
 /* Theme variables */
 import "./theme/variables.css";
+import { useEffect, useState } from "react";
+import { get} from "./components/storage";
 
 setupIonicReact();
 
 const App: React.FC = () => {
+  let[id, setID] = useState(""); //like a variable, comes with a setter
 
+  useEffect(() =>{ //allows you to update the UI (can set when to run --> on every render, on first render, or when a state variable changes)
+    get('user') //fetches the value stored under key 'user" --> uses the method from storage.tsx (uses preferences capacitor)
+    .then(user => setID(user.value ?? "")); // ?? defines the default value for when the first value is null
+  })
 
   return (
     <IonApp>
@@ -43,7 +50,7 @@ const App: React.FC = () => {
             <User />
           </Route>
           <Route exact path="/">
-            <Redirect to="/signIn" />
+            {id && authenticateUser(id)} 
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>
@@ -52,3 +59,10 @@ const App: React.FC = () => {
 }
 
 export default App;
+
+const authenticateUser = (id:string) => { //authenticates the user
+  if(id != ""){
+    return(<Redirect to="/user" />); //if the user has logged in already, they're redirected to home
+  }
+  return(<Redirect to="/signIn" />); // else, they're redirected to sign in
+};
