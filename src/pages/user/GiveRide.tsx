@@ -8,14 +8,12 @@ let year: string;
 let model: string;
 let make: string;
 let id: string;
-let user: string;
 
-const Tab3: React.FC = () => {
+const Tab3: React.FC<{computingID:string}> = (props) => {
   var userInput: Array<string> = Array(6).fill("");
   const [presentAlert] = useIonAlert();
 
   const getYears = async () => {
-    user = (await get('user')).value!;
     await fetch('https://www.fueleconomy.gov/ws/rest/vehicle/menu/year', { headers: { Accept: 'application/json', }, })
       .then(response => response.json())
       .then(data => {
@@ -41,7 +39,7 @@ const Tab3: React.FC = () => {
           departTime: userInput[3],
           eta: userInput[4],
           carSeats: userInput[5],
-          carDriver: user,
+          carDriver: props.computingID,
           carRiders: "",
           carYear: year,
           carModel: model,

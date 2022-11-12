@@ -14,19 +14,19 @@ import FindRide from "./FindRide";
 import GiveRide from "./GiveRide";
 import "./User.css";
 
-const User: React.FC = () => {
+const User: React.FC<{computingID:string}> = (props) => {
   return (
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>
           <Route exact path="/user/home">
-            <Home />
+            <Home computingID = {props.computingID}/>
           </Route>
           <Route exact path="/user/findRide">
-            <FindRide />
+            <FindRide computingID = {props.computingID} />
           </Route>
           <Route path="/user/giveRide">
-            <GiveRide />
+            <GiveRide computingID = {props.computingID} />
           </Route>
           <Route exact path="/user">
             <Redirect to="/user/home" />

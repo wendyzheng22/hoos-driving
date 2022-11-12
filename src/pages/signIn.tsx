@@ -1,22 +1,24 @@
 import './signIn.css';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonFooter, useIonAlert } from '@ionic/react';
 import { useHistory } from "react-router-dom";
-import { set, get } from "../components/storage";
+import {set} from "../components/storage";
 
 const isAuthenticated: boolean = true;
 const computingID: string = "abc1df"
 
 
-const SignIn: React.FC = () => {
+const SignIn: React.FC<{setUserID: Function}> = (props) => {// passes the setter of the parent state variable (id) to the child
   const history = useHistory();
   const [presentAlert] = useIonAlert();
 
   const routeChange = () => {
-    window.open("https://netbadge.virginia.edu");
+    //window.open("https://netbadge.virginia.edu");
     if (isAuthenticated) {
       let path = `/user`;
       history.push(path);
-      setUsername(computingID);
+      setID(computingID);
+      props.setUserID(computingID);
+
     }
     else {
       presentAlert({
@@ -58,6 +60,6 @@ const SignIn: React.FC = () => {
 
 export default SignIn;
 
-const setUsername = async (str: string) => {
+const setID = async (str: string) => {
   set("user", str);
 }

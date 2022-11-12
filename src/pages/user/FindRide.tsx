@@ -6,7 +6,7 @@ let mpg: string;
 let co2: string;
 
 
-const Tab2: React.FC = () => {
+const Tab2: React.FC<{computingID:string}> = (props) => {
   const [presentAlert] = useIonAlert();
 
   const fetchVehicle = async (id: any) => {
@@ -21,18 +21,16 @@ const Tab2: React.FC = () => {
   }
   
   function addUserToRide(id: number, rideObject: any): void {
-    get('user').then((user) => {
-      if (!(rideObject.carRiders))
-        rideObject.carRiders = user.value;
+    if (!(rideObject.carRiders))
+        rideObject.carRiders = props.computingID;
       else
-        rideObject.carRiders += ", " + user.value;
+        rideObject.carRiders += ", " + props.computingID;
       set(id.toString(), JSON.stringify(rideObject));
       presentAlert({
         header: 'Success',
         message: 'Successfully joined the carpool!',
         buttons: ['OK'],
       })
-    })
   }
 
   const createCards = () => {

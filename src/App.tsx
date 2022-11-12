@@ -27,7 +27,7 @@ import "@ionic/react/css/display.css";
 /* Theme variables */
 import "./theme/variables.css";
 import { useEffect, useState } from "react";
-import { get} from "./components/storage";
+import { clearAll, get} from "./components/storage";
 
 setupIonicReact();
 
@@ -36,21 +36,23 @@ const App: React.FC = () => {
 
   useEffect(() =>{ //allows you to update the UI (can set when to run --> on every render, on first render, or when a state variable changes)
     get('user') //fetches the value stored under key 'user" --> uses the method from storage.tsx (uses preferences capacitor)
-    .then(user => setID(user.value ?? "")); // ?? defines the default value for when the first value is null
+    .then(user => {console.log(user);setID(user.value ?? "")}); // ?? defines the default value for when the first value is null
   })
+  console.log(id);
 
   return (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
           <Route exact path="/signIn">
-            <SignIn />
+            <SignIn setUserID = {setID} />
           </Route>
           <Route exact path="/user">
-            <User />
+            <User computingID = {id} />
           </Route>
           <Route exact path="/">
-            {id && authenticateUser(id)} 
+            {(id && authenticateUser(id))} 
+
           </Route>
         </IonRouterOutlet>
       </IonReactRouter>

@@ -6,7 +6,7 @@ import { getCount, getRide } from "./FindRide";
 let rides: Array<any> = Array();
 let drives: Array<any> = Array();
 let destinations: Array<any> = Array();
-const Tab1: React.FC = () => {
+const Tab1: React.FC<{computingID:string}> = (props) => {
 
   return (
     <IonPage>
