@@ -18,7 +18,6 @@ const SignIn: React.FC<{setUserID: Function}> = (props) => {// passes the setter
       history.push(path);
       setID(computingID);
       props.setUserID(computingID);
-
     }
     else {
       presentAlert({
