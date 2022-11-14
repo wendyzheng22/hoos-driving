@@ -12,7 +12,7 @@ const SignIn: React.FC<{setUserID: Function}> = (props) => {// passes the setter
   const [presentAlert] = useIonAlert();
 
   const routeChange = () => {
-    //window.open("https://netbadge.virginia.edu");
+    window.open("https://netbadge.virginia.edu");
     if (isAuthenticated) {
       let path = `/user`;
       history.push(path);

@@ -3,13 +3,15 @@ import React from "react";
 import "./GiveRide.css";
 import { set, get } from "../../components/storage";
 import $ from 'jquery';
+import { fetchAPI } from "../../components/dataStructures";
+import { saveData } from "../../components/dataStructures";
 
 let year: string;
 let model: string;
 let make: string;
 let id: string;
 
-const Tab3: React.FC<{computingID:string}> = (props) => {
+const Tab3: React.FC<{computingID:string , fetchData:fetchAPI, saveRides :saveData}> = (props) => {
   var userInput: Array<string> = Array(6).fill("");
   const [presentAlert] = useIonAlert();
 

@@ -1,12 +1,14 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonToolbar, useIonAlert } from '@ionic/react';
 import './FindRide.css';
 import { set, get } from "../../components/storage";
+import { fetchAPI } from "../../components/dataStructures";
+import { saveData } from "../../components/dataStructures";
 
 let mpg: string;
 let co2: string;
 
 
-const Tab2: React.FC<{computingID:string}> = (props) => {
+const Tab2: React.FC<{computingID:string , fetchData:fetchAPI, saveRides :saveData}> = (props) => {
   const [presentAlert] = useIonAlert();
 
   const fetchVehicle = async (id: any) => {

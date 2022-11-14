@@ -1,12 +1,5 @@
 import { Redirect, Route } from "react-router-dom";
-import {
-  IonApp,
-  IonButton,
-  IonContent,
-  IonPage,
-  IonRouterOutlet,
-  setupIonicReact,
-} from "@ionic/react";
+import { IonApp, IonRouterOutlet, setupIonicReact } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
 import User from "./pages/user/User";
 import SignIn from "./pages/signIn";
@@ -30,8 +23,7 @@ import "@ionic/react/css/display.css";
 /* Theme variables */
 import "./theme/variables.css";
 import { useEffect, useState } from "react";
-import { clearAll, get } from "./components/storage";
-import React from "react";
+import { get } from "./components/storage";
 
 setupIonicReact();
 

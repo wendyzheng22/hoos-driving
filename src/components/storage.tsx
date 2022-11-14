@@ -9,7 +9,6 @@ export const set = async (storeKey: string, storeValue: string) => {
 
 export const get = async (getKey: string) => {
     const value = await Preferences.get({ key: getKey });
-
     return value;
 };
 
