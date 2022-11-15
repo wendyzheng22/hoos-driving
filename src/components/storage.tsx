@@ -20,3 +20,12 @@ export const clearAll = async () => {
             set('user', value);
     })
 }
+
+export type saveData = {
+    ridesList : Array<string>,
+    setRidesList :Function,
+    userRides : Array<string>,
+    setUserRides : Function,
+    userDrives : Array<string>,
+    setUserDrives : Function
+}

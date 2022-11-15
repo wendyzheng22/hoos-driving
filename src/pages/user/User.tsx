@@ -7,30 +7,23 @@ import FindRide from "./FindRide";
 import GiveRide from "./GiveRide";
 import "./User.css";
 import { useEffect, useRef, useState } from "react";
-import { fetchAPI } from "../../components/dataStructures";
-import { saveData } from "../../components/dataStructures";
-import { set, get } from "../../components/storage";
-
-
-const [apiURL, setAPIURL] = useState("");
-const [jsonString, setJSONString] = useState("");
-const [allRides, setAllRides] = useState(Array());
-const [rides, setRides] = useState(Array());
-const [drives, setDrives] = useState(Array());
-const isMounted = useRef(false);
-
+import { set, get, saveData } from "../../components/storage";
 
 const User: React.FC<{ computingID: string }> = (props) => {
+  const [allRides, setAllRides] = useState(Array());
+  const [rides, setRides] = useState(Array());
+  const [drives, setDrives] = useState(Array());
+  const isMounted = useRef(false);
 
-  useEffect(() => {
-    const fetchJSON = async () => {
-      await fetch(apiURL, { headers: { Accept: 'application/json', }, })
-        .then(response => response.json())
-        .then(data => setJSONString(data));
-    }
-    fetchJSON();
-  }, [apiURL]);
-
+  let saveProp: saveData = {
+    ridesList: allRides,
+    setRidesList: setAllRides,
+    userRides: rides,
+    setUserRides: setRides,
+    userDrives: drives,
+    setUserDrives: setDrives
+  }
+  
   useEffect(() => {
     const getData = async () => {
       await get("ridesList").then(list => setAllRides(JSON.parse(list.value || "")))
@@ -38,7 +31,7 @@ const User: React.FC<{ computingID: string }> = (props) => {
       await get("userDrives").then(list => setAllRides(JSON.parse(list.value || "")))
     }
     getData();
-  }, []);
+  }, []); // code will only run on the first render (when the page is initialized)
 
   useEffect(() => {
     const setData = () => {
@@ -46,15 +39,12 @@ const User: React.FC<{ computingID: string }> = (props) => {
       set("userRides", JSON.stringify(allRides));
       set("userDrives", JSON.stringify(allRides));
     }
-
     if (isMounted.current) {
       setData();
     }
     else
       isMounted.current = true;
-  }, [allRides, rides, drives]);
-
-  let childProps = setUpProps();
+  }, [allRides, rides, drives]); // code will run whenver the variables are changed (not on first render)
 
   return (
     <IonReactRouter>
@@ -64,10 +54,10 @@ const User: React.FC<{ computingID: string }> = (props) => {
             <Home computingID={props.computingID} />
           </Route>
           <Route exact path="/user/findRide">
-            <FindRide computingID={props.computingID} fetchData={childProps.fetch} saveRides={childProps.save} />
+            <FindRide computingID={props.computingID} saveRides={saveProp} />
           </Route>
           <Route path="/user/giveRide">
-            <GiveRide computingID={props.computingID} fetchData={childProps.fetch} saveRides={childProps.save} />
+            <GiveRide computingID={props.computingID} saveRides={saveProp} />
           </Route>
           <Route exact path="/user">
             <Redirect to="/user/home" />
@@ -93,22 +83,3 @@ const User: React.FC<{ computingID: string }> = (props) => {
 };
 
 export default User;
-
-const setUpProps = () => {
-  let fetch: fetchAPI = {
-    url: apiURL,
-    setURL: setAPIURL,
-    json: jsonString,
-  }
-
-  let save: saveData = {
-    ridesList: allRides,
-    setRidesList: setAllRides,
-    userRides: rides,
-    setUserRides: setRides,
-    userDrives: drives,
-    setUserDrives: setDrives
-  }
-
-  return { fetch, save };
-};
