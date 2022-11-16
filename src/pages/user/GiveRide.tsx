@@ -108,10 +108,13 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
     rideInfo['carModel'] = model;
     rideInfo['carMake'] = make;
     rideInfo['carDriver'] = props.computingID;
+    if (!validateRide(presentAlert)) {
+      return;
+    }
 
     if (checkValid()) {
-      props.saveRides.setRidesList((prevArray:any) =>[... prevArray, JSON.stringify(rideInfo)]);
-      props.saveRides.setUserDrives((prevArray:any) =>[... prevArray, JSON.stringify(rideInfo)]);
+      props.saveRides.setRidesList((prevArray: any) => [...prevArray, JSON.stringify(rideInfo)]);
+      props.saveRides.setUserDrives((prevArray: any) => [...prevArray, JSON.stringify(rideInfo)]);
 
       showAlert(presentAlert, 'Success', 'Your ride was successfully posted!');
 
@@ -124,10 +127,8 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
       setModel("");
       setCarID("");
     }
-    else {
-      console.log(rideInfo)
+    else 
       showAlert(presentAlert, 'Failure', 'Please fill out all the fields and try again!');
-    }
   }
 
   return (
@@ -224,11 +225,27 @@ const checkValid = () => { // makes sure that the user filled out all of the fie
   });
   return result;
 }
- 
+
 export const showAlert = (ionAlert: any, title: string, alert: string) => { // calls the alert to be displayed
   ionAlert({
     header: title,
     message: alert,
     buttons: ['OK'],
   });
+}
+
+function validateRide(alert: any) {
+  let today = new Date();
+  let departTime = new Date(rideInfo.departDate + " " + rideInfo.departTime);
+  let arriveTime = new Date(rideInfo.departDate + " " + rideInfo.eta)
+  if (today > departTime) {
+    showAlert(alert, "Failure", "Ride departure date/time is already past")
+    return false;
+  }
+  else if (departTime > arriveTime) {
+    showAlert(alert, "Failure", "Ride departure time is after estimated arrival time")
+    return false;
+  }
+  else
+    return true;
 }

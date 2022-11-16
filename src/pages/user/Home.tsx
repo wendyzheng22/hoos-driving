@@ -10,7 +10,6 @@ const Tab1: React.FC<{computingID:string, rideData : saveData}> = (props) => {
     setCardsList(destinationCard, pastTrips);
   }, [pastTrips])
   useEffect(() =>{
-    console.log(props.rideData.userDrives);
     let driveCard = document.getElementById("driver")!;
     let drives = JSON.parse(JSON.stringify(props.rideData.userDrives));
     for(let i = 0; i<drives.length; i++){
@@ -26,7 +25,6 @@ const Tab1: React.FC<{computingID:string, rideData : saveData}> = (props) => {
     setCardsList(driveCard, drives);
   }, [props.rideData.userDrives])
   useEffect(() =>{
-    console.log(props.rideData.userRides);
     let rideCard = document.getElementById("rider")!;
     let rides = JSON.parse(JSON.stringify(props.rideData.userRides));
     for(let i = 0; i<rides.length; i++){

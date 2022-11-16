@@ -16,7 +16,7 @@ const Tab2: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
       for (let i = 0; i < props.saveRides.ridesList.length; i++) {
         let currRide = JSON.parse(props.saveRides.ridesList[i]);
         let today = new Date();
-        let travelDate = new Date(currRide.departDate)
+        let travelDate = new Date(currRide.departDate + " " + currRide.departTime);
         if (travelDate >= today) {
           getData('https://www.fueleconomy.gov/ws/rest/vehicle/' + currRide.carID)
             .then(carData => {
