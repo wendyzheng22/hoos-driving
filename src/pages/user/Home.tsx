@@ -1,12 +1,46 @@
-import { IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonHeader, IonPage, IonToolbar,} from "@ionic/react";
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonHeader, IonPage, IonToolbar,} from "@ionic/react";
 import "./Home.css";
-import { get } from "../../components/storage";
-import { getCount, getRide } from "./FindRide";
+import { saveData} from "../../components/storage";
+import { useEffect, useState } from "react";
 
-let rides: Array<any> = Array();
-let drives: Array<any> = Array();
-let destinations: Array<any> = Array();
-const Tab1: React.FC<{computingID:string}> = (props) => {
+const Tab1: React.FC<{computingID:string, rideData : saveData}> = (props) => {
+  const[pastTrips, setPastTrips] = useState(Array<string>);
+  useEffect(() =>{
+    let destinationCard = document.getElementById("destination")!;
+    setCardsList(destinationCard, pastTrips);
+  }, [pastTrips])
+  useEffect(() =>{
+    console.log(props.rideData.userDrives);
+    let driveCard = document.getElementById("driver")!;
+    let drives = JSON.parse(JSON.stringify(props.rideData.userDrives));
+    for(let i = 0; i<drives.length; i++){
+      let currDrive = JSON.parse(drives[i]);
+      let date = new Date(currDrive.departDate + " " + currDrive.departTime);
+      let today = new Date();
+      if(date < today){
+        setPastTrips((prevArr:any) => [...prevArr, JSON.stringify(currDrive)])
+        drives.splice(i,1);
+        i--;
+      }
+    }
+    setCardsList(driveCard, drives);
+  }, [props.rideData.userDrives])
+  useEffect(() =>{
+    console.log(props.rideData.userRides);
+    let rideCard = document.getElementById("rider")!;
+    let rides = JSON.parse(JSON.stringify(props.rideData.userRides));
+    for(let i = 0; i<rides.length; i++){
+      let currRide = JSON.parse(rides[i]);
+      let date = new Date(currRide.departDate + " " + currRide.departTime);
+      let today = new Date();
+      if(date < today){
+        setPastTrips((prevArr:any) => [...prevArr, JSON.stringify(currRide)])
+        rides.splice(i,1);
+        i--;
+      }
+    }
+    setCardsList(rideCard, rides);
+  }, [props.rideData.userRides])
 
   return (
     <IonPage>
@@ -16,9 +50,6 @@ const Tab1: React.FC<{computingID:string}> = (props) => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <div className="center">
-          <IonButton onClick={() => fillCards()}>Refresh</IonButton>
-        </div>
         <IonCard>
           <IonCardHeader>
             <IonCardTitle className="center"><b>Upcoming Rides</b></IonCardTitle>
@@ -47,84 +78,21 @@ const Tab1: React.FC<{computingID:string}> = (props) => {
 
 export default Tab1;
 
-const getRides = async () => {
-  get('user').then(user => {
-    let userID: string = user.value!;
-    getCount().then((count => {
-      drives = new Array();
-      rides = new Array();
-      destinations = new Array();
-      for (let i = 1; i <= count; i++) {
-        getRide(i).then((ride) => {
-          let driver: string = ride.carDriver;
-          let riders: string = ride.carRiders;
-          let today = new Date();
-          let travelDate = new Date(ride.departDate)
-          if (travelDate < today) {
-            destinations.push(ride);
-          }
-          else {
-            if (userID === driver) {
-              drives.push(ride);
-            }
-            if (riders.includes(userID)) {
-              rides.push(ride);
-            }
-          }
-        })
-      }
-    }))
-  })
-}
+const setCardsList = (cardElement: HTMLElement, rideList: Array<string>) =>{
+  cardElement.innerHTML = "";
+  let ionList = document.createElement('ion-list');
 
-const fillCards = () => {
-  getRides().then(() => {
-    let rideCard = document.getElementById("rider");
-    rideCard!.innerHTML = "";
-    let driveCard = document.getElementById("driver");
-    driveCard!.innerHTML = "";
-    let destinationCard = document.getElementById("destination");
-    destinationCard!.innerHTML = "";
-    let ionList = document.createElement('ion-list');
-
-
-    for (let i = 0; i < rides.length; i++) {
-      let date = new Date(rides[i].departDate + " " + rides[i].departTime);
+    for (let i = 0; i < rideList.length; i++) {
+      let currRide = JSON.parse(rideList[i]);
+      let date = new Date(currRide.departDate + " " + currRide.departTime);
       let currDate = date.toDateString();
       let time = date.toLocaleTimeString();
       let ionDivider = document.createElement('ion-item-divider');
       ionDivider.innerHTML = `<ion-label>${currDate}</ion-label>`;
       let ionItem = document.createElement('ion-item');
-      ionItem.innerHTML = `<ion-label>${time}&nbsp&nbsp&nbsp&nbsp${rides[i].departCity} to ${rides[i].arriveCity}</ion-label>`;
+      ionItem.innerHTML = `<ion-label>${time}&nbsp&nbsp&nbsp&nbsp${currRide.departCity} to ${currRide.arriveCity}</ion-label>`;
       ionList.appendChild(ionDivider);
       ionList.appendChild(ionItem);
     }
-    rideCard?.appendChild(ionList);
-
-    ionList = document.createElement('ion-list');
-
-    for (let i = 0; i < drives.length; i++) {
-      let date = new Date(drives[i].departDate + " " + drives[i].departTime);
-      let currDate = date.toDateString();
-      let time = date.toLocaleTimeString();
-      let ionDivider = document.createElement('ion-item-divider');
-      ionDivider.innerHTML = `<ion-label>${currDate}</ion-label>`;
-      let ionItem = document.createElement('ion-item');
-      ionItem.innerHTML = `<ion-label>${time}&nbsp&nbsp&nbsp&nbsp${drives[i].departCity} to ${drives[i].arriveCity}</ion-label>`;
-      ionList.appendChild(ionDivider);
-      ionList.appendChild(ionItem);
-    }
-    driveCard?.appendChild(ionList);
-
-    ionList = document.createElement('ion-list');
-
-    for (let i = 0; i < destinations.length; i++) {
-      let date = new Date(destinations[i].departDate + " " + destinations[i].departTime);
-      let ionItem = document.createElement('ion-item');
-      let currDate = date.toLocaleDateString();
-      ionItem.innerHTML = `<ion-label>${currDate}&nbsp&nbsp&nbsp&nbsp${destinations[i].departCity} to ${destinations[i].arriveCity}</ion-label>`;
-      ionList.appendChild(ionItem);
-    }
-    destinationCard?.appendChild(ionList);
-  })
+    cardElement.appendChild(ionList);
 }

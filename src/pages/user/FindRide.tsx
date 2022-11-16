@@ -1,102 +1,56 @@
-import { IonButton, IonContent, IonHeader, IonPage, IonToolbar, useIonAlert } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonToolbar, useIonAlert } from '@ionic/react';
 import './FindRide.css';
-import { set, get, saveData } from "../../components/storage";
+import { saveData, clearAll } from "../../components/storage";
 import { getData } from "../../components/fetchAPI";
+import { showAlert } from "./GiveRide"
+import { useEffect, useRef } from 'react';
 
-let mpg: string;
-let co2: string;
-
-
-const Tab2: React.FC<{computingID:string , saveRides :saveData}> = (props) => {
+const Tab2: React.FC<{ computingID: string, saveRides: saveData }> = (props) => {
   const [presentAlert] = useIonAlert();
+  const isMounted = useRef(false);
 
-  const fetchVehicle = async (id: any) => {
-    let carID = id.toString();
-    await fetch('https://www.fueleconomy.gov/ws/rest/vehicle/' 
-    + carID, { headers: { Accept: 'application/json', }, })
-      .then(response => response.json())
-      .then(data => {
-        mpg = data['comb08'] ?? "N/A";
-        co2 = data['co2'] ?? "N/A"
-      });
-  }
-  
-  function addUserToRide(id: number, rideObject: any): void {
-    if (!(rideObject.carRiders))
-        rideObject.carRiders = props.computingID;
-      else
-        rideObject.carRiders += ", " + props.computingID;
-      set(id.toString(), JSON.stringify(rideObject));
-      presentAlert({
-        header: 'Success',
-        message: 'Successfully joined the carpool!',
-        buttons: ['OK'],
-      })
-  }
-
-  const createCards = () => {
-    var divContainer = document.getElementById("ridesList");
-    divContainer!.innerHTML = "";
-  
-    getCount().then((count => {
-      for (let i = 1; i <= count; i++) {
-        getRide(i).then((ride) => {
-          let today = new Date();
-          let travelDate = new Date(ride.departDate)
-          if (travelDate >= today) {
-            let dCity: string = ride.departCity;
-            let aCity: string = ride.arriveCity;
-            let dDate: string = formatDate(ride.departDate);
-            let dTime: string = formatTime(ride.departTime);
-            let eta: string = formatTime(ride.eta);
-            let seats: number = calculateSeats(ride);
-            let year: string = decodeURIComponent(ride.carYear);
-            let make: string = decodeURIComponent(ride.carMake);
-            let model: string = decodeURIComponent(ride.carModel);
-            fetchVehicle(ride.carID).then(() => {
-              let divRides = document.createElement('div');
-              divRides.id = "rides";
-  
-              let divTravel = document.createElement('div');
-              let travelInfo = `<h2 id = "subtitle">Travel Info</h2><b>Date:&nbsp&nbsp</b>${dDate}<br><b>Departure Time:&nbsp&nbsp</b>${dTime}<br><b>ETA:&nbsp&nbsp</b>${eta}<br><b>Available Seats:&nbsp&nbsp</b>${seats}<br>`;
-              divTravel.innerHTML = travelInfo;
-  
-              let divCar = document.createElement('div');
-              let carInfo = `<h2 id = "subtitle">Car Info</h2><b>Year:&nbsp&nbsp</b>${year}<br><b>Make:&nbsp&nbsp</b>${make}<br><b>Model:&nbsp&nbsp</b>${model}<br><b>Miles Per Gallon:&nbsp&nbsp</b>${mpg}` +
-                `<br><b>CO2 Emissions (grams/mile):&nbsp&nbsp</b>${co2}<br><br>`
-              divCar.innerHTML = carInfo;
-  
-              divRides.appendChild(divTravel);
-              divRides.appendChild(divCar);
-  
-              let button = document.createElement('ion-button');
-              button.id = "ride" + i;
-              button.addEventListener('click', () => addUserToRide(i, ride));
-              button.innerHTML = "Carpool";
-  
-              let divButton = document.createElement('div');
-              divButton.classList.add("center");
-              divButton.appendChild(button);
-  
-              let ionCardContent = document.createElement('ion-card-content');
-              ionCardContent.appendChild(divRides);
-              ionCardContent.appendChild(divButton);
-  
-              let ionCardHeader = document.createElement('ion-card-header');
-              ionCardHeader.innerHTML = `<ion-card-title>${dCity} to ${aCity}</ion-card-title>`
-  
-              let ionCard = document.createElement('ion-card');
-              ionCard.appendChild(ionCardHeader);
-              ionCard.appendChild(ionCardContent);
-  
-              divContainer?.appendChild(ionCard);
+  useEffect(() => {
+    if (isMounted.current) {
+      let div = document.getElementById("ridesList")!;
+      div.innerHTML = "";
+      for (let i = 0; i < props.saveRides.ridesList.length; i++) {
+        let currRide = JSON.parse(props.saveRides.ridesList[i]);
+        let today = new Date();
+        let travelDate = new Date(currRide.departDate)
+        if (travelDate >= today) {
+          getData('https://www.fueleconomy.gov/ws/rest/vehicle/' + currRide.carID)
+            .then(carData => {
+              let card = createCard(i, currRide, carData, addUserToRide);
+              div.appendChild(card)
             })
-          }
-        });
+        }
       }
-    }));
+    }
+    else
+      isMounted.current = true;
+  }, [props.saveRides.ridesList])
+
+  function addUserToRide(id: number, rideObject: any): void {
+    let ride = JSON.parse(JSON.stringify(rideObject)); //makes a clone of ride object
+    
+    if (ride.carRiders.indexOf(props.computingID) < 0){
+      if (!(ride.carRiders))
+        ride.carRiders = props.computingID;
+      else
+      ride.carRiders += ", " + props.computingID;
+
+      let rideList = [...props.saveRides.ridesList];
+      rideList[id] = JSON.stringify(ride);
+      props.saveRides.setRidesList(rideList);
+
+      props.saveRides.setUserRides((prevArr:any) =>[...prevArr, JSON.stringify(ride)])
+
+      showAlert(presentAlert, 'Success', 'Successfully joined the carpool!');
+    }
+    else
+      showAlert(presentAlert, 'Error', 'You have already joined the carpool');
   }
-  
+
   return (
     <IonPage>
       <IonHeader>
@@ -105,9 +59,6 @@ const Tab2: React.FC<{computingID:string , saveRides :saveData}> = (props) => {
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <div className="center">
-          <IonButton onClick={() => createCards()}>Refresh Page</IonButton>
-        </div>
         <div id="ridesList"></div>
       </IonContent>
     </IonPage>
@@ -115,25 +66,6 @@ const Tab2: React.FC<{computingID:string , saveRides :saveData}> = (props) => {
 };
 
 export default Tab2;
-
-
-export const getCount = async () => {
-  var value = (await get('count')).value;
-  var count;
-  if (!value || Number.isNaN(parseInt(value)))
-    count = 0;
-  else
-    count = parseInt(value);
-  return count;
-};
-
-export const getRide = async (index: number) => {
-  var json = (await get(index.toString())).value;
-  if (json)
-    return JSON.parse(json);
-  else
-    return "";
-};
 
 function calculateSeats(rideObject: any): number {
   let seats = rideObject.carSeats.toString();
@@ -161,5 +93,42 @@ const formatTime = (time: string) => {
     return (hours % 12).toString() + ':' + nums[1];
   else
     return time;
+}
+
+const createCard = (index: number, ride: any, carData: any, onClick: Function) => {
+  let divCard = document.createElement('div');
+  divCard.id = "rides";
+
+  let divTravel = document.createElement('div');
+  let travelInfo = `<h2 id = "subtitle">Travel Info</h2><b>Date: </b>${formatDate(ride.departDate)}<br><b>Departure Time: </b>${formatTime(ride.departTime)}<br><b>ETA: </b>${formatTime(ride.eta)}<br><b>Available Seats: </b>${calculateSeats(ride)}<br>`;
+  divTravel.innerHTML = travelInfo;
+
+  let divCar = document.createElement('div');
+  let carInfo = `<h2 id = "subtitle">Car Info</h2><b>Year:&nbsp&nbsp</b>${ride.carYear}<br><b>Make:&nbsp&nbsp</b>${ride.carMake}<br><b>Model:&nbsp&nbsp</b>${ride.carModel}<br><b>Miles Per Gallon:&nbsp&nbsp</b>${carData['comb08'] ?? "N/A"}` +
+    `<br><b>CO2 Emissions (grams/mile):&nbsp&nbsp</b>${carData['co2'] ?? "N/A"}<br><br>`
+  divCar.innerHTML = carInfo;
+
+  divCard.appendChild(divTravel);
+  divCard.appendChild(divCar);
+
+  let button = document.createElement('ion-button');
+  button.addEventListener('click', () => onClick(index, ride));
+  button.innerHTML = "Carpool";
+
+  let divButton = document.createElement('div');
+  divButton.classList.add("center");
+  divButton.appendChild(button);
+
+  let ionCardContent = document.createElement('ion-card-content');
+  ionCardContent.appendChild(divCard);
+  ionCardContent.appendChild(divButton);
+
+  let ionCardHeader = document.createElement('ion-card-header');
+  ionCardHeader.innerHTML = `<ion-card-title>${ride.departCity} to ${ride.arriveCity}</ion-card-title>`
+
+  let ionCard = document.createElement('ion-card');
+  ionCard.appendChild(ionCardHeader);
+  ionCard.appendChild(ionCardContent);
+  return ionCard;
 }
 

@@ -26,24 +26,26 @@ const User: React.FC<{ computingID: string }> = (props) => {
   
   useEffect(() => {
     const getData = async () => {
-      await get("ridesList").then(list => setAllRides(JSON.parse(list.value || "")))
-      await get("userRides").then(list => setAllRides(JSON.parse(list.value || "")))
-      await get("userDrives").then(list => setAllRides(JSON.parse(list.value || "")))
+      await get("ridesList").then(list => list.value ? setAllRides(JSON.parse(list.value)) : setAllRides([]))
+      await get("userRides").then(list => list.value ? setRides(JSON.parse(list.value)) : setRides([]))
+      await get("userDrives").then(list => list.value ? setDrives(JSON.parse(list.value)) : setDrives([]))
     }
-    getData();
-  }, []); // code will only run on the first render (when the page is initialized)
-
-  useEffect(() => {
     const setData = () => {
       set("ridesList", JSON.stringify(allRides));
-      set("userRides", JSON.stringify(allRides));
-      set("userDrives", JSON.stringify(allRides));
+      set("userRides", JSON.stringify(rides));
+      set("userDrives", JSON.stringify(drives));
     }
+
     if (isMounted.current) {
       setData();
     }
-    else
-      isMounted.current = true;
+    else {
+      getData().then(() => {
+        isMounted.current = true;
+      })
+    }
+
+
   }, [allRides, rides, drives]); // code will run whenver the variables are changed (not on first render)
 
   return (
@@ -51,7 +53,7 @@ const User: React.FC<{ computingID: string }> = (props) => {
       <IonTabs>
         <IonRouterOutlet>
           <Route exact path="/user/home">
-            <Home computingID={props.computingID} />
+            <Home computingID={props.computingID} rideData={saveProp} />
           </Route>
           <Route exact path="/user/findRide">
             <FindRide computingID={props.computingID} saveRides={saveProp} />

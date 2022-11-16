@@ -14,7 +14,9 @@ let rideInfo: any = { //holds user input about the ride and car
   departDate: null,
   departTime: null,
   eta: null,
-  carSeats: null
+  carSeats: null,
+  carDriver: null,
+  carRiders: ""
 }
 
 const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => {
@@ -23,7 +25,6 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
   const [make, setMake] = useState("");
   const [carID, setCarID] = useState("");
   const [presentAlert] = useIonAlert(); // used to present a pop up alert / notification
-
   useEffect(() => { //updates the years selector with all of the years
     let yearSelector = (document.getElementById('year') as HTMLSelectElement)!;
     yearSelector.innerHTML = `<option value="" disabled hidden>Year</option>`;
@@ -100,16 +101,17 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
       setCarID("");
       rideInfo['carID'] = carID;
     }
-  }, [model, carID])
+  }, [carID, model])
 
   const saveRide = () => {
     rideInfo['carYear'] = year;
     rideInfo['carModel'] = model;
     rideInfo['carMake'] = make;
+    rideInfo['carDriver'] = props.computingID;
+
     if (checkValid()) {
-      let list = props.saveRides.ridesList;
-      list.push(JSON.stringify(rideInfo));
-      props.saveRides.setRidesList(list);
+      props.saveRides.setRidesList((prevArray:any) =>[... prevArray, JSON.stringify(rideInfo)]);
+      props.saveRides.setUserDrives((prevArray:any) =>[... prevArray, JSON.stringify(rideInfo)]);
 
       showAlert(presentAlert, 'Success', 'Your ride was successfully posted!');
 
@@ -123,6 +125,7 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
       setCarID("");
     }
     else {
+      console.log(rideInfo)
       showAlert(presentAlert, 'Failure', 'Please fill out all the fields and try again!');
     }
   }
@@ -216,13 +219,13 @@ const fillSelector = (selector: HTMLSelectElement, jsonObject: any) => {
 const checkValid = () => { // makes sure that the user filled out all of the fields
   let result = true;
   Object.keys(rideInfo).forEach((key: string) => {
-    if (!rideInfo[key])
+    if (!rideInfo[key] && key !== 'carRiders')
       result = false;
   });
   return result;
 }
-
-const showAlert = (ionAlert: any, title: string, alert: string) => { // calls the alert to be displayed
+ 
+export const showAlert = (ionAlert: any, title: string, alert: string) => { // calls the alert to be displayed
   ionAlert({
     header: title,
     message: alert,
