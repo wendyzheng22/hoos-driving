@@ -1,6 +1,6 @@
 import { IonContent, IonHeader, IonPage, IonToolbar, useIonAlert } from '@ionic/react';
 import './FindRide.css';
-import { saveData, clearAll } from "../../components/storage";
+import { saveData } from "../../components/storage";
 import { getData } from "../../components/fetchAPI";
 import { showAlert } from "./GiveRide"
 import { useEffect, useRef } from 'react';
@@ -28,22 +28,34 @@ const Tab2: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
     }
     else
       isMounted.current = true;
+    if (props.saveRides.ridesList.length == 0) {
+      let div = document.getElementById("ridesList")!;
+      div.innerHTML = "";
+      let ionCard = document.createElement("ion-card");
+      let ionHeader = document.createElement("ion-card-header");
+      let ionCardTitle = document.createElement("ion-card-title");
+      ionCardTitle.classList.add("center");
+      ionCardTitle.textContent = "Sorry, there are no rides currently";
+      ionHeader.appendChild(ionCardTitle);
+      ionCard.appendChild(ionHeader);
+      div.appendChild(ionCard);
+    }
   }, [props.saveRides.ridesList])
 
   function addUserToRide(id: number, rideObject: any): void {
     let ride = JSON.parse(JSON.stringify(rideObject)); //makes a clone of ride object
-    
-    if (ride.carRiders.indexOf(props.computingID) < 0){
+
+    if (ride.carRiders.indexOf(props.computingID) < 0) {
       if (!(ride.carRiders))
         ride.carRiders = props.computingID;
       else
-      ride.carRiders += ", " + props.computingID;
+        ride.carRiders += ", " + props.computingID;
 
       let rideList = [...props.saveRides.ridesList];
       rideList[id] = JSON.stringify(ride);
       props.saveRides.setRidesList(rideList);
 
-      props.saveRides.setUserRides((prevArr:any) =>[...prevArr, JSON.stringify(ride)])
+      props.saveRides.setUserRides((prevArr: any) => [...prevArr, JSON.stringify(ride)])
 
       showAlert(presentAlert, 'Success', 'Successfully joined the carpool!');
     }
