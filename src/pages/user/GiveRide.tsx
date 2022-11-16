@@ -1,5 +1,5 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonToolbar, useIonAlert } from "@ionic/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./GiveRide.css";
 import { getData } from "../../components/fetchAPI";
 import { saveData } from "../../components/storage";
@@ -32,7 +32,6 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
       .then(data => {
         fillSelector(yearSelector, data);
         yearSelector.value = year;
-        rideInfo['carYear'] = year;
         rideInfo['carModel'] = null;
         rideInfo['carMake'] = null;
         rideInfo['carID'] = null;
@@ -48,10 +47,9 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
       getData('https://www.fueleconomy.gov/ws/rest/vehicle/menu/make?year=' + encodeURI(year))
         .then(data => {
           fillSelector(makeSelector, data);
-          makeSelector.value = make;
+          makeSelector.value = "";
           rideInfo['carModel'] = null;
           rideInfo['carID'] = null;
-          rideInfo['carMake'] = make;
           setModel("");
         })
     }
@@ -59,7 +57,7 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
       makeSelector.setAttribute('disabled', '');
       makeSelector.value = "";
     }
-  }, [year, make]);
+  }, [year]);
 
   useEffect(() => { //updates the model selector with all of the models
     let modelSelector = (document.getElementById('model') as HTMLSelectElement)!;
@@ -68,8 +66,7 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
       getData('https://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=' + encodeURI(year) + '&make=' + encodeURI(make))
         .then(data => {
           fillSelector(modelSelector, data);
-          modelSelector.value = model;
-          rideInfo['carModel'] = model;
+          modelSelector.value = "";
           rideInfo['carID'] = null;
           setCarID("");
         })
@@ -78,7 +75,7 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
       modelSelector.setAttribute('disabled', '');
       modelSelector.value = "";
     }
-  }, [make, model]);
+  }, [make]);
 
   useEffect(() => {
     if (model !== "") {
@@ -101,7 +98,7 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
       setCarID("");
       rideInfo['carID'] = carID;
     }
-  }, [carID, model])
+  }, [model])
 
   const saveRide = () => {
     rideInfo['carYear'] = year;
