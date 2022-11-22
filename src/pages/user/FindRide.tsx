@@ -8,7 +8,6 @@ import { useEffect, useRef } from 'react';
 const Tab2: React.FC<{ computingID: string, saveRides: saveData }> = (props) => {
   const [presentAlert] = useIonAlert(); //used to display an alert
   const isMounted = useRef(false);
-
   useEffect(() => {
     if (isMounted.current) {
       let div = document.getElementById("ridesList")!; //gets the ridesList element (holds the cards that display each ride), the ! after forces Typescript to accept that it isn't null

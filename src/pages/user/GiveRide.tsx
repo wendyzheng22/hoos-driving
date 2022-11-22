@@ -1,29 +1,31 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonToolbar, useIonAlert } from "@ionic/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./GiveRide.css";
 import { getData } from "../../components/fetchAPI";
 import { saveData } from "../../components/storage";
 
 let rideInfo: any = { //holds user input about the ride and car
-  carYear: null,
-  carMake: null,
-  carModel: null,
-  carID: null,
-  departCity: null,
-  arriveCity: null,
-  departDate: null,
-  departTime: null,
-  eta: null,
-  carSeats: null,
-  carDriver: null,
+  carYear: "",
+  carMake: "",
+  carModel: "",
+  carID: "",
+  departCity: "",
+  arriveCity: "",
+  departDate: "",
+  departTime: "",
+  eta: "",
+  carSeats: "",
+  carDriver: "",
   carRiders: ""
 }
-
 const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => {
   const [year, setYear] = useState(""); // used to trigger fetching data from api
   const [model, setModel] = useState("");
   const [make, setMake] = useState("");
   const [carID, setCarID] = useState("");
+  const [storeRide, setStoreRide] = useState(false);
+  const [carIDReady, setCarIDReady] = useState(false);
+  const isMounted = useRef(false);
   const [presentAlert] = useIonAlert(); // used to present a pop up alert / notification
   useEffect(() => { //updates the years selector with all of the years
     let yearSelector = (document.getElementById('year') as HTMLSelectElement)!;
@@ -91,14 +93,27 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
             setCarID("");
             showAlert(presentAlert, 'Error', 'Database does not contain information for this car');
           }
-          rideInfo['carID'] = carID;
         })
     }
     else { // when year, make, or model is resetted
       setCarID("");
-      rideInfo['carID'] = carID;
+      rideInfo['carID'] = "";
     }
   }, [model])
+
+  useEffect(() =>{
+    rideInfo['carID'] = carID;
+    if(isMounted.current){
+      if(storeRide){
+        saveRide();
+        setStoreRide(false);
+      }
+      else
+        setCarIDReady(true);
+    }
+    else
+      isMounted.current = true;
+  }, [carID])
 
   const saveRide = () => {
     rideInfo['carYear'] = year;
@@ -110,9 +125,10 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
     }
 
     if (checkValid()) {
-      props.saveRides.setRidesList((prevArray: any) => [...prevArray, JSON.stringify(rideInfo)]);
-      props.saveRides.setUserDrives((prevArray: any) => [...prevArray, JSON.stringify(rideInfo)]);
-
+      setCarIDReady(false);
+      let rideString:string = JSON.stringify(rideInfo);
+      props.saveRides.setUserDrives((prevArray: any) => [...prevArray, rideString]);
+      props.saveRides.setRidesList((prevArray: any) => [...prevArray, rideString]);
       showAlert(presentAlert, 'Success', 'Your ride was successfully posted!');
 
       let inputs = document.getElementsByTagName("input");
@@ -123,6 +139,9 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
       setMake("");
       setModel("");
       setCarID("");
+      Object.keys(rideInfo).forEach(key =>{
+        rideInfo[key] = "";
+      })
     }
     else 
       showAlert(presentAlert, 'Failure', 'Please fill out all the fields and try again!');
@@ -186,7 +205,7 @@ const Tab3: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
         </div>
         <div className="center">
           <br></br>
-          <IonButton onClick={() => saveRide()}>Post Ride</IonButton>
+          <IonButton onClick={() => carIDReady ? saveRide() : setStoreRide(true)}>Post Ride</IonButton>
         </div>
       </IonContent>
     </IonPage>
