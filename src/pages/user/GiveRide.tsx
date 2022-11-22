@@ -1,5 +1,5 @@
 import { IonButton, IonContent, IonHeader, IonPage, IonToolbar, useIonAlert } from "@ionic/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./GiveRide.css";
 import { getData } from "../../components/fetchAPI";
 import { saveData } from "../../components/storage";

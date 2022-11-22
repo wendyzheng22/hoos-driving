@@ -6,29 +6,29 @@ import { showAlert } from "./GiveRide"
 import { useEffect, useRef } from 'react';
 
 const Tab2: React.FC<{ computingID: string, saveRides: saveData }> = (props) => {
-  const [presentAlert] = useIonAlert();
+  const [presentAlert] = useIonAlert(); //used to display an alert
   const isMounted = useRef(false);
 
   useEffect(() => {
     if (isMounted.current) {
-      let div = document.getElementById("ridesList")!;
-      div.innerHTML = "";
+      let div = document.getElementById("ridesList")!; //gets the ridesList element (holds the cards that display each ride), the ! after forces Typescript to accept that it isn't null
+      div.innerHTML = ""; // sets the inner HTML (anything inside the open and close tags)
       for (let i = 0; i < props.saveRides.ridesList.length; i++) {
         let currRide = JSON.parse(props.saveRides.ridesList[i]);
         let today = new Date();
         let travelDate = new Date(currRide.departDate + " " + currRide.departTime);
-        if (travelDate >= today) {
+        if (travelDate >= today) { // makes sure that the travel date is after today
           getData('https://www.fueleconomy.gov/ws/rest/vehicle/' + currRide.carID)
             .then(carData => {
-              let card = createCard(i, currRide, carData, addUserToRide);
-              div.appendChild(card)
+              let card = createCard(i, currRide, carData, addUserToRide); //creates a card element
+              div.appendChild(card) // adds the element to the ridesList (places it inside the tag)
             })
         }
       }
     }
     else
       isMounted.current = true;
-    if (props.saveRides.ridesList.length == 0) {
+    if (props.saveRides.ridesList.length === 0) { // displays a card saying that there is no rides available
       let div = document.getElementById("ridesList")!;
       div.innerHTML = "";
       let ionCard = document.createElement("ion-card");
@@ -45,7 +45,7 @@ const Tab2: React.FC<{ computingID: string, saveRides: saveData }> = (props) => 
   function addUserToRide(id: number, rideObject: any): void {
     let ride = JSON.parse(JSON.stringify(rideObject)); //makes a clone of ride object
 
-    if (ride.carRiders.indexOf(props.computingID) < 0) {
+    if (ride.carRiders.indexOf(props.computingID) < 0) { // checks to make sure that the user is not already in the list of riders
       if (!(ride.carRiders))
         ride.carRiders = props.computingID;
       else

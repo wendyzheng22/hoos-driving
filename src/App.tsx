@@ -48,12 +48,14 @@ const App: React.FC = () => {
       <IonReactRouter>
         <IonRouterOutlet>
           <Route exact path="/signIn">
-            <SignIn setUserID={setID} />
+            {/* passes the setter for ID to the child component (SignIn) */}
+            <SignIn setUserID={setID} /> 
           </Route>
           <Route exact path="/user">
             <User computingID={id} />
           </Route>
           <Route exact path="/">
+            {/* because authenticated is a JSX element (HTML), it can be placed in brackets and the value of authenticated is "returned" */}
             {authenticated}
           </Route>
         </IonRouterOutlet>

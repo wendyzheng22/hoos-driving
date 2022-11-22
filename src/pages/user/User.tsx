@@ -10,10 +10,10 @@ import { useEffect, useRef, useState } from "react";
 import { set, get, saveData } from "../../components/storage";
 
 const User: React.FC<{ computingID: string }> = (props) => {
-  const [allRides, setAllRides] = useState(Array());
-  const [rides, setRides] = useState(Array());
-  const [drives, setDrives] = useState(Array());
-  const isMounted = useRef(false);
+  const [allRides, setAllRides] = useState([]);
+  const [rides, setRides] = useState([]);
+  const [drives, setDrives] = useState([]);
+  const isMounted = useRef(false); //used in useEffect for when the method shouldn't run on first render (when the page is first initalized)
 
   let saveProp: saveData = {
     ridesList: allRides,
@@ -44,8 +44,6 @@ const User: React.FC<{ computingID: string }> = (props) => {
         isMounted.current = true;
       })
     }
-
-
   }, [allRides, rides, drives]); // code will run whenver the variables are changed (not on first render)
 
   return (
