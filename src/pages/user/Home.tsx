@@ -84,7 +84,7 @@ const setCardsList = (cardElement: HTMLElement, rideList: Array<string>) =>{
       let currRide = JSON.parse(rideList[i]);
       let date = new Date(currRide.departDate + " " + currRide.departTime);
       let currDate = date.toDateString();
-      let time = date.toLocaleTimeString();
+      let time = date.toLocaleTimeString().slice(0,-6) +date.toLocaleTimeString().slice(-3);
       let ionDivider = document.createElement('ion-item-divider');
       ionDivider.innerHTML = `<ion-label>${currDate}</ion-label>`;
       let ionItem = document.createElement('ion-item');
